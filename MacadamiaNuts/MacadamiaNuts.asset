@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1521619359, guid: 6c51af4caf82552438523065e6991d90, type: 3}
+  m_Name: MacadamiaNuts
+  m_EditorClassIdentifier: 
+  _prefab: {fileID: 1901376807469079034, guid: e770d864cab2e59478aad6ada3db8b38, type: 3}
+  _valuablePresets:
+  - Valuables - Generic
+  - Valuables - Wizard
+  - Valuables - Manor
+  - Valuables - Arctic
