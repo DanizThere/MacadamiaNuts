@@ -1,7 +1,7 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
+using System.Collections;
 
 namespace MacadamiaNuts
 {
@@ -9,7 +9,6 @@ namespace MacadamiaNuts
     {
         private const float MAX_ANGLE = 80f;
 
-        [SerializeField] private AudioSource _metalPipe;
         [SerializeField] private GameObject _firstLayer;
         [SerializeField] private GameObject _secondLayer;
         [SerializeField] private GameObject _thirdLayer;
@@ -31,11 +30,14 @@ namespace MacadamiaNuts
 
         private PhysGrabObject _physGrabObject;
         private PhotonView _photonView;
+        private PhysGrabCart _cart;
 
-        private bool IsGrabbed => PhysGrabber.instance.grabbedPhysGrabObject == _physGrabObject && PhysGrabber.instance.grabbed && _physGrabObject.grabbed;
+        private bool _isGrabbed;
         private bool IsEmpty => _nutsLayers.Count == 0;
 
         private bool _isHurting;
+        private bool _isObjectInCart;
+
 
         private enum State
         {
@@ -54,10 +56,18 @@ namespace MacadamiaNuts
             _nutsLayers.Enqueue(_thirdLayer);
 
             _currentState = State.Idle;
+
+            StartCoroutine(TryGetCart());
         }
 
         private void Update()
         {
+            if (!_cart) return;
+
+            _isObjectInCart = _cart.itemsInCart.Contains(_physGrabObject);
+
+            _isGrabbed = _physGrabObject.playerGrabbing.Count > 0;
+
             if (!IsEmpty)
             {
                 if (_isHurting)
@@ -85,6 +95,10 @@ namespace MacadamiaNuts
         private void NutsCrackes()
         {
             _particle.Play();
+
+            if(_nutsLayers.Count == 1)
+                _physGrabObject.impactDetector.DestroyObject(true);
+
             if (_nutsLayers.Count != 0)
             {
                 var go = _nutsLayers.Dequeue();
@@ -97,13 +111,17 @@ namespace MacadamiaNuts
 
         private void StateIdle()
         {
-            if(IsGrabbed)
+            if(_isGrabbed)
             {
                 _currentState = State.Active;
                 return;
             }
 
-            if (transform.rotation.eulerAngles.x > MAX_ANGLE && _nutsLayers.Count != 0)
+            if (_isObjectInCart) return;
+
+            var isLookDown = transform.rotation.eulerAngles.x > MAX_ANGLE || transform.rotation.eulerAngles.z > MAX_ANGLE;
+
+            if (isLookDown && _nutsLayers.Count != 0)
             {
                 if (_cooldownUntilNextLayer > 0)
                 {
@@ -119,7 +137,7 @@ namespace MacadamiaNuts
 
         private void StateActive()
         {
-            if (!IsGrabbed)
+            if (!_isGrabbed)
             {
                 _currentState = State.Idle;
                 return;
@@ -148,13 +166,8 @@ namespace MacadamiaNuts
 
                 if (_nutsLayers.Count > 0)
                     _damage = Random.Range(1, 3);
-                else _damage = Random.Range(5, 10);
 
-                var emitParams = new ParticleSystem.EmitParams();
-                emitParams.position = player.playerAvatar.spectatePoint.position + (player.playerAvatar.spectatePoint.forward * .3f);
-                emitParams.angularVelocity3D = Vector3.down;
-
-                _particle.Emit(emitParams, 15);
+                Emit(15, player.playerAvatar.spectatePoint);
             }
 
             _isHurting = false;
@@ -167,13 +180,35 @@ namespace MacadamiaNuts
             _objections.AddRange(objections);
         }
 
+        private void Emit(int count, Transform transform)
+        {
+            for(int i = 0; i < count; i++)
+            {
+                Emit(transform);
+            }
+        }
+
+        private void Emit(Transform basePoint)
+        {
+            var newPosition = basePoint.position + (basePoint.forward * .3f); 
+            newPosition += new Vector3(Random.Range(-.1f, .1f), Random.Range(-.05f, .1f), 0);
+
+            var emitParams = new ParticleSystem.EmitParams
+            {
+                position = newPosition,
+                velocity = Vector3.up * .2f
+            };
+
+            _particle.Emit(emitParams, 1);
+        }
+
         private void HurtPlayer()
         {
-            if (SemiFunc.IsMasterOrSingleplayer())
+            if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 if (SemiFunc.IsMultiplayer())
                 {
-                    _photonView.RPC(nameof(), RpcTarget.All);
+                    _photonView.RPC(nameof(HurtPlayerRPC), RpcTarget.All);
                 }
                 else
                 {
@@ -182,7 +217,23 @@ namespace MacadamiaNuts
             }
         }
 
-        [RunRPC]
+        private IEnumerator TryGetCart()
+        {
+            int attempts = 5;
+
+            for(int i = 0; i < attempts; i++)
+            {
+                _cart = FindAnyObjectByType<PhysGrabCart>();
+
+                if(_cart != null)
+                {
+                    break;
+                }
+                yield return new WaitForSeconds(1);
+            }
+        }
+
+        [PunRPC]
         private void HurtPlayerRPC(PhotonMessageInfo _info = default(PhotonMessageInfo))
         {
             if (SemiFunc.MasterOnlyRPC(_info))

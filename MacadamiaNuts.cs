@@ -2,8 +2,6 @@
 using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
-using REPOLib;
-using REPOLib.Commands;
 
 
 namespace MacadamiaNuts
