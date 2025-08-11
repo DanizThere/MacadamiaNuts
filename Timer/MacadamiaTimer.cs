@@ -18,6 +18,8 @@ namespace MacadamiaNuts.Timer
             if(_timer < _counter)
             {
                 _timer += deltaTime;
+
+                return;
             }
 
             onEnd?.Invoke();
