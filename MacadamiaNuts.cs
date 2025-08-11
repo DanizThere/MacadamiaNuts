@@ -1,12 +1,13 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using MacadamiaNuts.Valuables;
 using UnityEngine;
 
 
 namespace MacadamiaNuts
 {
-    [BepInPlugin("DanizHereAndNow.MacadamiaNuts", "MacadamiaNuts", "1.0")]
+    [BepInPlugin("DanizHereAndNow.MacadamiaNuts", "MacadamiaNuts", "1.1")]
     [BepInDependency(REPOLib.MyPluginInfo.PLUGIN_GUID, BepInDependency.DependencyFlags.HardDependency)]
     public class MacadamiaNuts : BaseUnityPlugin
     {
