@@ -32,6 +32,8 @@ namespace MacadamiaNuts.States
                 _currentState?.Exit();
                 _currentState = state;
                 _currentState.Enter();
+
+                return;
             }
 
             Debug.LogWarning("This state doesnt exist");
