@@ -54,7 +54,7 @@ namespace MacadamiaNuts.Valuables
 
             _stateMachine = new();
             _stateMachine.AddState(new ActiveMacadamiaNuts(_activeTimerData, damage: 1, _semiEat, _physGrabObject, _photonView, _isFilled, _particle));
-            _stateMachine.AddState(new IdleMacadamiaNuts(_idleTimerData, _particle, _nutsLayers, _soundCrack, _physGrabObject));
+            _stateMachine.AddState(new IdleMacadamiaNuts(_idleTimerData, _particle, _nutsLayers, _soundCrack, _physGrabObject, _isObjectInCart, _isRotatedDown));
         }
 
         private void Update()
@@ -63,7 +63,7 @@ namespace MacadamiaNuts.Valuables
             {
                 _stateMachine.SetState<ActiveMacadamiaNuts>();
             }
-            else if (_isGrabbed && !_isObjectInCart && _isRotatedDown) _stateMachine.SetState<IdleMacadamiaNuts>();
+            else if (!_isGrabbed) _stateMachine.SetState<IdleMacadamiaNuts>();
 
             _currentState.Update();
         }

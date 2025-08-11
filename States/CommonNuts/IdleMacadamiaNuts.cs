@@ -20,7 +20,10 @@ namespace MacadamiaNuts.States
         private Sound _soundCrack;
         PhysGrabObject _physGrabObject;
 
-        public IdleMacadamiaNuts(MacadamiaTimerData macadamiaTimerData, ParticleSystem particleSystem, Queue<GameObject> layers, Sound soundCrack, PhysGrabObject physGrabObject)
+        private bool _isObjectInCart;
+        private bool _isRotatedDown;
+
+        public IdleMacadamiaNuts(MacadamiaTimerData macadamiaTimerData, ParticleSystem particleSystem, Queue<GameObject> layers, Sound soundCrack, PhysGrabObject physGrabObject, bool isObjectInCart, bool isRotatedDown)
         {
             _min = macadamiaTimerData.Min;
             _max = macadamiaTimerData.Max;
@@ -29,6 +32,8 @@ namespace MacadamiaNuts.States
 
             _particleSystem = particleSystem;
             _layers = layers;
+            _isObjectInCart = isObjectInCart;
+            _isRotatedDown = isRotatedDown;
         }
 
         public override void Enter()
@@ -43,12 +48,15 @@ namespace MacadamiaNuts.States
 
         public override void Update()
         {
-            _timer.Countdown(Time.deltaTime, () =>
+            if (!_isObjectInCart && _isRotatedDown)
             {
-                NutsCrackes();
+                _timer.Countdown(Time.deltaTime, () =>
+                {
+                    NutsCrackes();
 
-                _timer.UpdateCounter(Random.Range(_min, _max));
-            });
+                    _timer.UpdateCounter(Random.Range(_min, _max));
+                });
+            }
         }
 
         private void NutsCrackes()
