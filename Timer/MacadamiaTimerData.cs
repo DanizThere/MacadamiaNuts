@@ -2,15 +2,11 @@
 
 namespace MacadamiaNuts.Timer
 {
-    [System.Serializable]
-    public class MacadamiaTimerData(float min, float max, float start)
+    [CreateAssetMenu(fileName = "Timer - _____", menuName = "Macadamia Nuts/Timer Data")]
+    public class MacadamiaTimerData : ScriptableObject
     {
-        public float Min => _min;
-        public float Max => _max;
-        public float StartTime => _startTime;
-
-        [SerializeField] private float _min = min;
-        [SerializeField] private float _max = max;
-        [SerializeField] private float _startTime = start;
+        public float Min;
+        public float Max;
+        public float StartTime;
     }
 }

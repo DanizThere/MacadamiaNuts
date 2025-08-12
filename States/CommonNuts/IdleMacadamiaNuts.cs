@@ -3,27 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace MacadamiaNuts.States
+namespace MacadamiaNuts.States.CommonNuts
 {
     public class IdleMacadamiaNuts : MacadamiaState
     {
+        private readonly float MAX_ANGLE;
+        private Transform _objectTransform;
+
+        private Queue<GameObject> _layers = new();
+        private PhysGrabCart _cart;
+
         private MacadamiaTimer _timer;
 
         private float _min = 0f;
         private float _max = 0f;
 
         private bool _isFilledByOne => _layers.Count == 1;
-        private bool _isFilled => _layers.Any();    
+        
         private ParticleSystem _particleSystem;
 
-        private Queue<GameObject> _layers = new();
         private Sound _soundCrack;
         PhysGrabObject _physGrabObject;
 
-        private bool _isObjectInCart;
-        private bool _isRotatedDown;
+        private bool _isObjectInCart => _cart.itemsInCart.Contains(_physGrabObject);
+        private bool _isRotatedDown => _objectTransform.transform.rotation.eulerAngles.x > MAX_ANGLE || _objectTransform.transform.rotation.eulerAngles.z > MAX_ANGLE;
 
-        public IdleMacadamiaNuts(MacadamiaTimerData macadamiaTimerData, ParticleSystem particleSystem, Queue<GameObject> layers, Sound soundCrack, PhysGrabObject physGrabObject, bool isObjectInCart, bool isRotatedDown)
+        public IdleMacadamiaNuts(MacadamiaTimerData macadamiaTimerData, ParticleSystem particleSystem, Queue<GameObject> layers, Sound soundCrack, PhysGrabObject physGrabObject, PhysGrabCart physGrabCart, Transform transform, float angle)
         {
             _min = macadamiaTimerData.Min;
             _max = macadamiaTimerData.Max;
@@ -32,8 +37,11 @@ namespace MacadamiaNuts.States
 
             _particleSystem = particleSystem;
             _layers = layers;
-            _isObjectInCart = isObjectInCart;
-            _isRotatedDown = isRotatedDown;
+            MAX_ANGLE = angle;
+            _objectTransform = transform;
+            _cart = physGrabCart;
+            _physGrabObject = physGrabObject;
+            _soundCrack = soundCrack;
         }
 
         public override void Enter()
@@ -66,7 +74,7 @@ namespace MacadamiaNuts.States
             if (_isFilledByOne)
                 _physGrabObject.impactDetector.DestroyObject(true);
 
-            if (!_isFilled)
+            if (_layers.Any())
             {
                 var go = _layers.Dequeue();
                 go.SetActive(false);

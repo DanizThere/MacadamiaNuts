@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace MacadamiaNuts.States
 {
@@ -11,7 +12,7 @@ namespace MacadamiaNuts.States
 
         public void AddState(MacadamiaState state)
         {
-            var stateName = state.GetType().ToString();
+            var stateName = state.ToString();
 
             if(!_states.ContainsKey(stateName))
             {
@@ -23,7 +24,7 @@ namespace MacadamiaNuts.States
 
         public void SetState<T>() where T : MacadamiaState
         {
-            var stateName = nameof(T);
+            var stateName = typeof(T).Name;
 
             if(_states.TryGetValue(stateName, out var state))
             {
@@ -33,10 +34,12 @@ namespace MacadamiaNuts.States
                 _currentState = state;
                 _currentState.Enter();
 
+                Debug.Log($"This state ({stateName}) is current");
+
                 return;
             }
 
-            Debug.LogWarning("This state doesnt exist");
+            Debug.LogWarning($"This state ({stateName}) doesnt exist");
         }
 
         public void ExecuteState()

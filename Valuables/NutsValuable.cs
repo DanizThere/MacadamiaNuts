@@ -5,6 +5,7 @@ using System.Collections;
 using MacadamiaNuts.Timer;
 using MacadamiaNuts.States;
 using System.Linq;
+using MacadamiaNuts.States.CommonNuts;
 
 namespace MacadamiaNuts.Valuables
 {
@@ -31,13 +32,9 @@ namespace MacadamiaNuts.Valuables
         private PhotonView _photonView;
         private PhysGrabCart _cart;
 
-        private MacadamiaState _currentState;
         private MacadamiaStateMachine _stateMachine;
 
         private bool _isGrabbed => _physGrabObject.playerGrabbing.Any();
-        private bool _isFilled => _nutsLayers.Any();
-        private bool _isObjectInCart => _cart && _cart.itemsInCart.Contains(_physGrabObject);
-        private bool _isRotatedDown => transform.rotation.eulerAngles.x > MAX_ANGLE || transform.rotation.eulerAngles.z > MAX_ANGLE;
 
 
         private void Awake()
@@ -53,8 +50,16 @@ namespace MacadamiaNuts.Valuables
             StartCoroutine(TryGetCart());
 
             _stateMachine = new();
-            _stateMachine.AddState(new ActiveMacadamiaNuts(_activeTimerData, damage: 1, _semiEat, _physGrabObject, _photonView, _isFilled, _particle));
-            _stateMachine.AddState(new IdleMacadamiaNuts(_idleTimerData, _particle, _nutsLayers, _soundCrack, _physGrabObject, _isObjectInCart, _isRotatedDown));
+        }
+
+        private IEnumerator Start()
+        {
+            yield return new WaitForEndOfFrame();
+
+            var activeState = new ActiveMacadamiaNuts(_activeTimerData, damage: 1, _semiEat, _physGrabObject, _photonView, _nutsLayers, _particle);
+            var idleState = new IdleMacadamiaNuts(_idleTimerData, _particle, _nutsLayers, _soundCrack, _physGrabObject, _cart, transform, MAX_ANGLE);
+            _stateMachine.AddState(activeState);
+            _stateMachine.AddState(idleState);
         }
 
         private void Update()
@@ -65,7 +70,7 @@ namespace MacadamiaNuts.Valuables
             }
             else if (!_isGrabbed) _stateMachine.SetState<IdleMacadamiaNuts>();
 
-            _currentState.Update();
+            _stateMachine.ExecuteState();
         }
 
         public void NutsCracked()

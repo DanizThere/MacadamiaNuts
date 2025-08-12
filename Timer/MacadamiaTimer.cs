@@ -2,10 +2,15 @@
 
 namespace MacadamiaNuts.Timer
 {
-    public class MacadamiaTimer(float baseCounter)
+    public class MacadamiaTimer
     {
         private float _timer = 0f;
-        private float _counter = baseCounter;
+        private float _counter = 0f;
+
+        public MacadamiaTimer(float baseCounter)
+        {
+            _counter = baseCounter;
+        }
 
         public void UpdateCounter(float newValue)
         {

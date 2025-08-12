@@ -1,12 +1,15 @@
 ﻿using MacadamiaNuts.Timer;
 using Photon.Pun;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace MacadamiaNuts.States
+namespace MacadamiaNuts.States.CommonNuts
 {
     public class ActiveMacadamiaNuts : MacadamiaState
     {
+        private Queue<GameObject> _layers = new();
+
         private MacadamiaTimer _timer;
         private float _min = 0f;
         private float _max = 0f;
@@ -20,9 +23,9 @@ namespace MacadamiaNuts.States
         private Sound _semiEat;
         private ParticleSystem _particleSystem;
 
-        private bool _isFilled;
+        private bool _isFilled => _layers.Any();
 
-        public ActiveMacadamiaNuts(MacadamiaTimerData macadamiaTimerData, int damage, Sound semiEat, PhysGrabObject physGrabObject, PhotonView photonView, bool isFilled, ParticleSystem particleSystem)
+        public ActiveMacadamiaNuts(MacadamiaTimerData macadamiaTimerData, int damage, Sound semiEat, PhysGrabObject physGrabObject, PhotonView photonView, Queue<GameObject> layers, ParticleSystem particleSystem)
         {
             _min = macadamiaTimerData.Min;
             _max = macadamiaTimerData.Max;
@@ -36,7 +39,7 @@ namespace MacadamiaNuts.States
             _semiEat = semiEat;
 
             _particleSystem = particleSystem;
-            _isFilled = isFilled;
+            _layers = layers;
         }
 
         public override void Enter()
@@ -100,7 +103,7 @@ namespace MacadamiaNuts.States
 
         private void Emit(Transform basePoint)
         {
-            var newPosition = basePoint.position + (basePoint.forward * .3f);
+            var newPosition = basePoint.position + basePoint.forward * .3f;
             newPosition += new Vector3(Random.Range(-.1f, .1f), Random.Range(-.05f, .1f), 0);
 
             var emitParams = new ParticleSystem.EmitParams
@@ -128,7 +131,7 @@ namespace MacadamiaNuts.States
         }
 
         [PunRPC]
-        private void HurtPlayerRPC(PhotonMessageInfo _info = default(PhotonMessageInfo))
+        private void HurtPlayerRPC(PhotonMessageInfo _info = default)
         {
             if (SemiFunc.MasterOnlyRPC(_info))
             {
