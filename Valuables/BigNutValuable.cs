@@ -1,53 +1,54 @@
 ﻿using Photon.Pun;
+using System.Linq;
 using UnityEngine;
 
 namespace MacadamiaNuts.Valuables
 {
     public class BigNutValuable : MonoBehaviour
     {
+        [SerializeField] private float _maxDistance = 2f;
         [SerializeField] private Sound _meAndTheBirds;
-        [SerializeField] private float _throwForce = 10f;
 
         private PhysGrabObject _physGrabObject;
-        private PhotonView _photonView;
 
         private bool _isPushing;
 
         private void Awake()
         {
-            _photonView = GetComponent<PhotonView>();
             _physGrabObject = GetComponent<PhysGrabObject>();
         }
 
+
         private void Update()
         {
-            if (_physGrabObject.grabbed) _physGrabObject.playerGrabbing.Clear();
-
-            _meAndTheBirds.PlayLoop(_isPushing, fadeInSpeed: 1, fadeOutSpeed: 1);
-        }
-
-        private void OnCollisionEnter(Collision collision)
-        {
-            if (collision.transform.TryGetComponent<PlayerAvatar>(out var _))
+            if (_physGrabObject.playerGrabbing.Any())
             {
-                _isPushing = true;
+                foreach(var players in _physGrabObject.playerGrabbing.ToList())
+                {
+                    players.ReleaseObject();
+                }
+            }
+
+            _meAndTheBirds.PlayLoop(_isPushing, fadeInSpeed: .5f, fadeOutSpeed: 1);
+
+            var cols = Physics.OverlapSphere(transform.position, _maxDistance);
+            foreach (var col in cols)
+            {
+                if (col.gameObject.CompareTag("Player"))
+                {
+                    _isPushing = true;
+
+                    break;
+                }
+                else _isPushing = false;
             }
         }
 
-        private void OnCollisionStay(Collision collision)
+        private void OnDrawGizmos()
         {
-            if(collision.transform.TryGetComponent<PlayerAvatar>(out var player))
-            {
-                _physGrabObject.rb.AddForce(player.transform.forward * _throwForce, ForceMode.Impulse);
-            }
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(transform.position, _maxDistance);
         }
 
-        private void OnCollisionExit(Collision collision)
-        {
-            if (collision.transform.TryGetComponent<PlayerAvatar>(out var _))
-            {
-                _isPushing = false;
-            }
-        }
     }
 }
