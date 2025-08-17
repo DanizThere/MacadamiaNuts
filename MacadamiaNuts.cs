@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using MacadamiaNuts.Golden;
 using MacadamiaNuts.Valuables;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ namespace MacadamiaNuts
         private ManualLogSource _logger => base.Logger;
         internal Harmony? Harmony { get; set; }
         internal NutsValuable? NutsValuableInstance { get; private set; }
+        internal GoldenHeadFactory? GoldenHeadFactory { get; private set; }
 
         private void Awake()
         {
@@ -26,6 +28,7 @@ namespace MacadamiaNuts
             this.gameObject.hideFlags = HideFlags.HideAndDontSave;
 
             //NutsValuableInstance = this.gameObject.AddComponent<NutsValuable>();
+            GoldenHeadFactory = new GoldenHeadFactory();
 
             Patch();
 

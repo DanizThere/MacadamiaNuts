@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using MacadamiaNuts.Golden;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ namespace MacadamiaNuts.Valuables
     {
         [SerializeField] private ParticleSystem _shiningParticles;
         [SerializeField] private Sound _corryptSound;
+        [SerializeField] private GoldenHead _prefab;
 
         private HashSet<PlayerAvatar> _corryptedPlayers = new();
 
@@ -58,10 +60,13 @@ namespace MacadamiaNuts.Valuables
 
         private void Corrypt(List<PhysGrabber> players)
         {
+            Color possessColor = new(1f, 0.3f, 0.6f, 1f);
+
             uint newPlayers = System.Convert.ToUInt32(players.Count - 1 - _players.Count);
             for (uint i = newPlayers; i < players.Count; i++)
             {
                 var avatar = players[(int)i].playerAvatar;
+                var avatarVisual = players[(int)i].transform.parent.GetComponentInChildren<PlayerAvatarVisuals>();
 
                 var existGold = avatar.GetComponentInChildren<GoldenPlayerAvatar>();
                 if(existGold != null)
@@ -77,12 +82,16 @@ namespace MacadamiaNuts.Valuables
                         GO.transform.SetParent(avatar.transform);
 
                         var gold = GO.AddComponent<GoldenPlayerAvatar>();
-                        gold.Initialize(avatar, this);
+                        gold.Initialize(avatar, avatarVisual, this);
 
-                        //ChatManager.instance.PossessChatScheduleStart(15);
-                        //ChatManager.instance.PossessChat(ChatManager.PossessChatID.None, "Oh, this is a very creepy feeling >//<", typingSpeed: 1f, possessColor);
-                        //ChatManager.instance.PossessChatScheduleEnd();
-                    } 
+                        if (SemiFunc.IsMultiplayer())
+                        {
+                            ChatManager.instance.PossessChatScheduleStart(15);
+                            ChatManager.instance.PossessChat(ChatManager.PossessChatID.None, "Oh, this is a very creepy feeling >//<", typingSpeed: 1f, possessColor);
+                            ChatManager.instance.PossessChatScheduleEnd();
+                        }
+
+                    }
                 }
             }
 
