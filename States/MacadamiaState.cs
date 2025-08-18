@@ -1,9 +1,11 @@
-﻿namespace MacadamiaNuts.States
+﻿using UnityEngine;
+
+namespace MacadamiaNuts.States
 {
-    public abstract class MacadamiaState
+    public abstract class MacadamiaState : MonoBehaviour
     {
         public abstract void Enter();
-        public abstract void Update();
+        public abstract void Execute();
         public abstract void Exit();
 
         public override string ToString()

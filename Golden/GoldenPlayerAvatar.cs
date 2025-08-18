@@ -22,9 +22,9 @@ namespace MacadamiaNuts.Golden
         private Animator _animator;
         private PlayerAvatar _playerAvatar;
         private PlayerAvatarVisuals _playerAvatarVisuals;
-        private PhotonView _playerPhoton;
 
         private GoldenNutValuable _corryptioner;
+        private GoldenVingette _vingette;
 
         private MeshRenderer[] _playerRenderers;
 
@@ -38,10 +38,8 @@ namespace MacadamiaNuts.Golden
             var rigModel = _playerAvatarVisuals.meshParent;
 
             _animator = _playerAvatarVisuals.GetComponent<Animator>();
-            _playerPhoton = _playerAvatar.GetComponent<PhotonView>();
-
-            _playerPhoton.ObservedComponents.Add(this);
-            _goldenShader = Shader.Find("MacadamiaNuts/GoldShader");
+            _vingette = GetComponent<GoldenVingette>();
+            _goldenShader = GetComponent<Renderer>().material.shader;
 
             _counter = Random.Range(2, 7);
 
@@ -60,21 +58,18 @@ namespace MacadamiaNuts.Golden
 
             _counter--;
 
-            StartCoroutine(UpdateCorryption(_counter));
+            StartCoroutine(UpdateCorryptionCoroutine(_counter));
+            _vingette.ShowCurrentVignette(_counter);
         }
 
         public void Revive()
         {
-            // it aint my fault he ran right in front of my truck
-            // where, on the interstate?
-            _playerPhoton.ObservedComponents.Remove(this);
-
             Destroy(this);
         }
 
         private void Death()
         {
-            StartCoroutine(UpdateCorryption(0));
+            StartCoroutine(UpdateCorryptionCoroutine(0));
             _animator.speed = 0f;
             _corryptioner.RemoveCorryptedPlayer(_playerAvatar);
 
@@ -92,15 +87,19 @@ namespace MacadamiaNuts.Golden
             //}
         }
 
-        private IEnumerator UpdateCorryption(float counter)
+        private IEnumerator UpdateCorryptionCoroutine(float counter)
         {
             foreach (Renderer renderer in _playerRenderers)
             {
                 var material = renderer.materials.FirstOrDefault(x => x.name == "GoldCorryption");
 
+                foreach(var m in renderer.materials)
+                {
+                    Debug.Log(m);
+                }
+
                 if (!material)
                 {
-                    Debug.Log("нету материала");
                     continue;
                 }
 
@@ -108,9 +107,11 @@ namespace MacadamiaNuts.Golden
 
                 var oldMaterial = renderer.materials[0];
                 renderer.materials[0] = material;
+
                 while (currentCorryption >= counter * _step)
                 {
-                    material.SetFloat(EDGE_STEP, Time.deltaTime);
+                    currentCorryption -= Time.deltaTime;
+                    material.SetFloat(EDGE_STEP, currentCorryption);
                     yield return null;
                 }
 
@@ -138,10 +139,17 @@ namespace MacadamiaNuts.Golden
                     name = "GoldCorryption"
                 };
                 goldMaterial.SetTexture(MAIN_TEXTURE, texture);
-                goldMaterial.SetFloat(EDGE_STEP, 1);
+                goldMaterial.SetFloat(EDGE_STEP, MAX_GOLD);
 
                 var newMaterials = new Material[renderer.materials.Length + 1];
-                newMaterials[newMaterials.Length] = goldMaterial;
+
+                renderer.materials.CopyTo(newMaterials, 0);
+                newMaterials[^1] = goldMaterial;
+
+                foreach(var mat in newMaterials)
+                {
+                    Debug.Log(mat);
+                }
 
                 renderer.materials = newMaterials;
             }

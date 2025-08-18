@@ -7,9 +7,11 @@ namespace MacadamiaNuts.Valuables
 {
     public class GoldenNutValuable : MonoBehaviour
     {
+        [SerializeField] private GameObject _goldenPrefab;
+
+        [SerializeField] private Renderer _prefabGoldenRender;
         [SerializeField] private ParticleSystem _shiningParticles;
         [SerializeField] private Sound _corryptSound;
-        [SerializeField] private GoldenHead _prefab;
 
         private HashSet<PlayerAvatar> _corryptedPlayers = new();
 
@@ -78,10 +80,9 @@ namespace MacadamiaNuts.Valuables
                 {
                     if (_corryptedPlayers.Add(avatar))
                     {
-                        var GO = new GameObject("GoldenCorryption");
-                        GO.transform.SetParent(avatar.transform);
+                        var GO = Instantiate(_goldenPrefab, avatar.transform);
 
-                        var gold = GO.AddComponent<GoldenPlayerAvatar>();
+                        var gold = GO.GetComponent<GoldenPlayerAvatar>();
                         gold.Initialize(avatar, avatarVisual, this);
 
                         if (SemiFunc.IsMultiplayer())

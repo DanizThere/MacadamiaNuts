@@ -7,7 +7,7 @@ namespace MacadamiaNuts.States.CommonNuts
 {
     public class IdleMacadamiaNuts : MacadamiaState
     {
-        private readonly float MAX_ANGLE;
+        private float MAX_ANGLE;
         private Transform _objectTransform;
 
         private Queue<GameObject> _layers = new();
@@ -28,7 +28,7 @@ namespace MacadamiaNuts.States.CommonNuts
         private bool _isObjectInCart => _cart.itemsInCart.Contains(_physGrabObject);
         private bool _isRotatedDown => _objectTransform.transform.rotation.eulerAngles.x > MAX_ANGLE || _objectTransform.transform.rotation.eulerAngles.z > MAX_ANGLE;
 
-        public IdleMacadamiaNuts(MacadamiaTimerData macadamiaTimerData, ParticleSystem particleSystem, Queue<GameObject> layers, Sound soundCrack, PhysGrabObject physGrabObject, PhysGrabCart physGrabCart, Transform transform, float angle)
+        public void Initialize(MacadamiaTimerData macadamiaTimerData, ParticleSystem particleSystem, Queue<GameObject> layers, Sound soundCrack, PhysGrabObject physGrabObject, PhysGrabCart physGrabCart, Transform transform, float angle)
         {
             _min = macadamiaTimerData.Min;
             _max = macadamiaTimerData.Max;
@@ -54,7 +54,7 @@ namespace MacadamiaNuts.States.CommonNuts
             _timer.UpdateCounter(Random.Range(_min, _max));
         }
 
-        public override void Update()
+        public override void Execute()
         {
             if (!_isObjectInCart && _isRotatedDown)
             {

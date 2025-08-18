@@ -50,14 +50,13 @@ namespace MacadamiaNuts.Valuables
             StartCoroutine(TryGetCart());
 
             _stateMachine = new();
-        }
 
-        private IEnumerator Start()
-        {
-            yield return new WaitForEndOfFrame();
+            var activeState = GetComponent<ActiveMacadamiaNuts>();
+            activeState.Initialize(_activeTimerData, damage: 1, _semiEat, _physGrabObject, _photonView, _nutsLayers, _particle);
 
-            var activeState = new ActiveMacadamiaNuts(_activeTimerData, damage: 1, _semiEat, _physGrabObject, _photonView, _nutsLayers, _particle);
-            var idleState = new IdleMacadamiaNuts(_idleTimerData, _particle, _nutsLayers, _soundCrack, _physGrabObject, _cart, transform, MAX_ANGLE);
+            var idleState = GetComponent<IdleMacadamiaNuts>();
+            idleState.Initialize(_idleTimerData, _particle, _nutsLayers, _soundCrack, _physGrabObject, _cart, transform, MAX_ANGLE);
+
             _stateMachine.AddState(activeState);
             _stateMachine.AddState(idleState);
         }

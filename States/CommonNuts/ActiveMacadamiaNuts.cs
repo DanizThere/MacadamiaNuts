@@ -25,7 +25,7 @@ namespace MacadamiaNuts.States.CommonNuts
 
         private bool _isFilled => _layers.Any();
 
-        public ActiveMacadamiaNuts(MacadamiaTimerData macadamiaTimerData, int damage, Sound semiEat, PhysGrabObject physGrabObject, PhotonView photonView, Queue<GameObject> layers, ParticleSystem particleSystem)
+        public void Initialize(MacadamiaTimerData macadamiaTimerData, int damage, Sound semiEat, PhysGrabObject physGrabObject, PhotonView photonView, Queue<GameObject> layers, ParticleSystem particleSystem)
         {
             _min = macadamiaTimerData.Min;
             _max = macadamiaTimerData.Max;
@@ -52,7 +52,7 @@ namespace MacadamiaNuts.States.CommonNuts
             _timer.UpdateCounter(Random.Range(_min, _max));
         }
 
-        public override void Update()
+        public override void Execute()
         {
             if (_isFilled)
             {

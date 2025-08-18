@@ -17,8 +17,6 @@ namespace MacadamiaNuts.States
             if(!_states.ContainsKey(stateName))
             {
                 _states.Add(stateName, state);
-
-                Debug.Log($"New state ({stateName}) was added.");
             }
         }
 
@@ -34,8 +32,6 @@ namespace MacadamiaNuts.States
                 _currentState = state;
                 _currentState.Enter();
 
-                Debug.Log($"This state ({stateName}) is current");
-
                 return;
             }
 
@@ -44,7 +40,7 @@ namespace MacadamiaNuts.States
 
         public void ExecuteState()
         {
-            _currentState?.Update();
+            _currentState?.Execute();
         }
     }
 }
