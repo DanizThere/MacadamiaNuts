@@ -8,8 +8,6 @@ namespace MacadamiaNuts.Valuables
     public class GoldenNutValuable : MonoBehaviour
     {
         [SerializeField] private GameObject _goldenPrefab;
-
-        [SerializeField] private Renderer _prefabGoldenRender;
         [SerializeField] private ParticleSystem _shiningParticles;
         [SerializeField] private Sound _corryptSound;
 
@@ -25,9 +23,6 @@ namespace MacadamiaNuts.Valuables
         private void Awake()
         {
             _physGrabObject = GetComponent<PhysGrabObject>();
-
-            print(GetComponentInChildren<Renderer>().material.shader.name);
-            print(GetComponentInChildren<Renderer>().material.shader);
         }
 
         private void Update()

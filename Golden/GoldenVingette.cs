@@ -41,12 +41,12 @@ namespace MacadamiaNuts.Golden
             _vingette.gameObject.SetActive(false);
         }
 
-        public void ShowCurrentVignette(float counter)
+        public void ShowCurrentVignette(float counter, float max)
         {
-            StartCoroutine(ShowCurrentVignetteCoroutine(counter));
+            StartCoroutine(ShowCurrentVignetteCoroutine(counter, max));
         }
 
-        private IEnumerator ShowCurrentVignetteCoroutine(float counter)
+        private IEnumerator ShowCurrentVignetteCoroutine(float counter, float max)
         {
             if (!_material.HasProperty(VINGETTE_KEY))
             {
@@ -55,8 +55,12 @@ namespace MacadamiaNuts.Golden
                 yield break;
             }
 
-            var newValue = MAX_VALUE - MIN_VALUE / counter;
+            var step = (MAX_VALUE - MIN_VALUE) / max;
+            var newValue = step * counter;
+
             _currentVignette = _material.GetFloat(VINGETTE_KEY);
+            print($"{_currentVignette} is current vingette");
+            print($"{newValue} is new vingette");
 
             while(_currentVignette > newValue)
             {

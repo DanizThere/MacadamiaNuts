@@ -1,7 +1,5 @@
 ﻿using MacadamiaNuts.Valuables;
-using Photon.Pun;
 using System.Collections;
-using System.Linq;
 using UnityEngine;
 
 namespace MacadamiaNuts.Golden
@@ -16,8 +14,8 @@ namespace MacadamiaNuts.Golden
 
         private float _counter = 5;
         private float _maxCorruption = 0;
-        private float _step => (MAX_GOLD - MIN_GOLD) / _maxCorruption;
-        private bool _isFullCorrupted => _maxCorruption == _counter;
+        private float _minCorruption = 0;
+        private bool _isFullCorrupted => _minCorruption == _counter;
 
         private Animator _animator;
         private PlayerAvatar _playerAvatar;
@@ -42,6 +40,7 @@ namespace MacadamiaNuts.Golden
             _goldenShader = GetComponent<Renderer>().material.shader;
 
             _counter = Random.Range(2, 7);
+            _maxCorruption = _counter;
 
             _playerRenderers = rigModel.transform.GetComponentsInChildren<MeshRenderer>(includeInactive: true);
             AddMaterial();
@@ -59,7 +58,7 @@ namespace MacadamiaNuts.Golden
             _counter--;
 
             StartCoroutine(UpdateCorryptionCoroutine(_counter));
-            _vingette.ShowCurrentVignette(_counter);
+            _vingette.ShowCurrentVignette(_counter, _maxCorruption);
         }
 
         public void Revive()
@@ -91,27 +90,27 @@ namespace MacadamiaNuts.Golden
         {
             foreach (Renderer renderer in _playerRenderers)
             {
-                var material = renderer.materials.FirstOrDefault(x => x.name == "GoldCorryption");
+                var material = renderer.materials[^1];
+                var step = (MAX_GOLD - MIN_GOLD) / _maxCorruption;
+                var progress = counter * step;
 
-                foreach(var m in renderer.materials)
-                {
-                    Debug.Log(m);
-                }
-
-                if (!material)
+                if (material.shader != _goldenShader)
                 {
                     continue;
                 }
 
                 var currentCorryption = material.GetFloat(EDGE_STEP);
+                print($"{currentCorryption} is current float");
+                print($"{progress} is progress");
 
                 var oldMaterial = renderer.materials[0];
                 renderer.materials[0] = material;
 
-                while (currentCorryption >= counter * _step)
+                while (currentCorryption >= progress)
                 {
                     currentCorryption -= Time.deltaTime;
                     material.SetFloat(EDGE_STEP, currentCorryption);
+                    print(currentCorryption);
                     yield return null;
                 }
 
@@ -145,11 +144,6 @@ namespace MacadamiaNuts.Golden
 
                 renderer.materials.CopyTo(newMaterials, 0);
                 newMaterials[^1] = goldMaterial;
-
-                foreach(var mat in newMaterials)
-                {
-                    Debug.Log(mat);
-                }
 
                 renderer.materials = newMaterials;
             }

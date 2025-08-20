@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace MacadamiaNuts
 {
-    [BepInPlugin("DanizHereAndNow.MacadamiaNuts", "MacadamiaNuts", "1.1")]
+    [BepInPlugin("DanizHereAndNow.MacadamiaNuts", "MacadamiaNuts", "1.2")]
     [BepInDependency(REPOLib.MyPluginInfo.PLUGIN_GUID, BepInDependency.DependencyFlags.HardDependency)]
     public class MacadamiaNuts : BaseUnityPlugin
     {
