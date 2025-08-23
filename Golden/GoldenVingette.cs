@@ -14,12 +14,16 @@ namespace MacadamiaNuts.Golden
 
         private float _currentVignette;
 
+        private Material _materialPrefab;
         private Material _material;
 
         private void Awake()
         {
             _vingette = GetComponentInChildren<Image>();
-            _material = _vingette.material;
+            _materialPrefab = _vingette.material;
+
+            _material = new(_materialPrefab);
+            _vingette.material = _material;
 
             if (!_material.HasProperty(VINGETTE_KEY))
             {
@@ -29,6 +33,8 @@ namespace MacadamiaNuts.Golden
             }
 
             _material.SetFloat(VINGETTE_KEY, MAX_VALUE);
+
+            Hide();
         }
 
         public void Show()
@@ -39,6 +45,11 @@ namespace MacadamiaNuts.Golden
         public void Hide()
         {
             _vingette.gameObject.SetActive(false);
+        }
+
+        public void ResetVingette()
+        {
+            ShowCurrentVignette(MAX_VALUE, MAX_VALUE);
         }
 
         public void ShowCurrentVignette(float counter, float max)
@@ -59,8 +70,6 @@ namespace MacadamiaNuts.Golden
             var newValue = step * counter;
 
             _currentVignette = _material.GetFloat(VINGETTE_KEY);
-            print($"{_currentVignette} is current vingette");
-            print($"{newValue} is new vingette");
 
             while(_currentVignette > newValue)
             {

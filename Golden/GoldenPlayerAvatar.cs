@@ -6,6 +6,9 @@ namespace MacadamiaNuts.Golden
 {
     public class GoldenPlayerAvatar : MonoBehaviour
     {
+        public float Counter => _counter;
+        public float MaxCorruption => _maxCorruption;
+
         private const string MAIN_TEXTURE = "_MainTex";
         private const string EDGE_STEP = "_GoldCorryption";
 
@@ -17,12 +20,10 @@ namespace MacadamiaNuts.Golden
         private float _minCorruption = 0;
         private bool _isFullCorrupted => _minCorruption == _counter;
 
-        private Animator _animator;
         private PlayerAvatar _playerAvatar;
         private PlayerAvatarVisuals _playerAvatarVisuals;
 
         private GoldenNutValuable _corryptioner;
-        private GoldenVingette _vingette;
 
         private MeshRenderer[] _playerRenderers;
 
@@ -35,8 +36,6 @@ namespace MacadamiaNuts.Golden
             _playerAvatarVisuals = rig;
             var rigModel = _playerAvatarVisuals.meshParent;
 
-            _animator = _playerAvatarVisuals.GetComponent<Animator>();
-            _vingette = GetComponent<GoldenVingette>();
             _goldenShader = GetComponent<Renderer>().material.shader;
 
             _counter = Random.Range(2, 7);
@@ -58,32 +57,15 @@ namespace MacadamiaNuts.Golden
             _counter--;
 
             StartCoroutine(UpdateCorryptionCoroutine(_counter));
-            _vingette.ShowCurrentVignette(_counter, _maxCorruption);
         }
 
-        public void Revive()
-        {
-            Destroy(this);
-        }
-
-        private void Death()
+        public void Death()
         {
             StartCoroutine(UpdateCorryptionCoroutine(0));
-            _animator.speed = 0f;
             _corryptioner.RemoveCorryptedPlayer(_playerAvatar);
 
             _playerAvatar.physGrabber.ReleaseObject();
-
-            _playerAvatar.SetSpectate();
-
-            //if(_playerAvatar.playerDeathHead.TryGetComponent<GoldenHead>(out var head))
-            //{
-
-            //}
-            //else
-            //{
-            //    MacadamiaNuts.Instance.GoldenHeadFactory.Create(_playerAvatar.playerDeathHead.transform);
-            //}
+            _playerAvatar.PlayerDeath(-1);
         }
 
         private IEnumerator UpdateCorryptionCoroutine(float counter)
@@ -100,8 +82,6 @@ namespace MacadamiaNuts.Golden
                 }
 
                 var currentCorryption = material.GetFloat(EDGE_STEP);
-                print($"{currentCorryption} is current float");
-                print($"{progress} is progress");
 
                 var oldMaterial = renderer.materials[0];
                 renderer.materials[0] = material;
@@ -110,7 +90,6 @@ namespace MacadamiaNuts.Golden
                 {
                     currentCorryption -= Time.deltaTime;
                     material.SetFloat(EDGE_STEP, currentCorryption);
-                    print(currentCorryption);
                     yield return null;
                 }
 
@@ -131,6 +110,7 @@ namespace MacadamiaNuts.Golden
                 {
                     texture = renderer.material.mainTexture;
                 }
+                else if (renderer.material.name == "Player Avatar - Eye") continue;
                 else continue;
 
                 var goldMaterial = new Material(_goldenShader)

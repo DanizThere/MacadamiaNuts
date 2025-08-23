@@ -9,7 +9,6 @@ namespace MacadamiaNuts.Valuables
     {
         [SerializeField] private GameObject _goldenPrefab;
         [SerializeField] private ParticleSystem _shiningParticles;
-        [SerializeField] private Sound _corryptSound;
 
         private HashSet<PlayerAvatar> _corryptedPlayers = new();
 
@@ -57,7 +56,7 @@ namespace MacadamiaNuts.Valuables
 
         private void Corrypt(List<PhysGrabber> players)
         {
-            Color possessColor = new(1f, 0.3f, 0.6f, 1f);
+            Color possessColor = Color.yellow;
 
             uint newPlayers = System.Convert.ToUInt32(players.Count - 1 - _players.Count);
             for (uint i = newPlayers; i < players.Count; i++)
@@ -65,11 +64,10 @@ namespace MacadamiaNuts.Valuables
                 var avatar = players[(int)i].playerAvatar;
                 var avatarVisual = players[(int)i].transform.parent.GetComponentInChildren<PlayerAvatarVisuals>();
 
-                var existGold = avatar.GetComponentInChildren<GoldenPlayerAvatar>();
+                var existGold = avatar.GetComponentInChildren<GoldenHead>();
                 if(existGold != null)
                 {
                     existGold.IncreaseCorryption();
-                    _corryptSound.Play(avatar.transform.position);
                 }
                 else
                 {
@@ -77,16 +75,9 @@ namespace MacadamiaNuts.Valuables
                     {
                         var GO = Instantiate(_goldenPrefab, avatar.transform);
 
-                        var gold = GO.GetComponent<GoldenPlayerAvatar>();
-                        gold.Initialize(avatar, avatarVisual, this);
-
-                        if (SemiFunc.IsMultiplayer())
-                        {
-                            ChatManager.instance.PossessChatScheduleStart(15);
-                            ChatManager.instance.PossessChat(ChatManager.PossessChatID.None, "Oh, this is a very creepy feeling >//<", typingSpeed: 1f, possessColor);
-                            ChatManager.instance.PossessChatScheduleEnd();
-                        }
-
+                        GO.GetComponent<GoldenPlayerAvatar>().Initialize(avatar, avatarVisual, this);
+                        GO.GetComponent<GoldenHead>().Initialize();
+                        GO.GetComponent<GoldenHead>().StartCorrypt();
                     }
                 }
             }

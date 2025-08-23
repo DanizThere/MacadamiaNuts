@@ -14,6 +14,7 @@ namespace MacadamiaNuts
         internal new static ManualLogSource Logger => Instance._logger;
         private ManualLogSource _logger => base.Logger;
         internal Harmony? Harmony { get; set; }
+        internal MacadamiaPhrasesDictionary MacadamiaPhrasesDictionary { get; private set; }
 
         private void Awake()
         {
@@ -22,6 +23,9 @@ namespace MacadamiaNuts
             // Prevent the plugin from being deleted
             this.gameObject.transform.parent = null;
             this.gameObject.hideFlags = HideFlags.HideAndDontSave;
+
+            MacadamiaPhrasesDictionary = this.gameObject.AddComponent<MacadamiaPhrasesDictionary>();
+            MacadamiaPhrasesDictionary.Initialize();
             
             Patch();
 
