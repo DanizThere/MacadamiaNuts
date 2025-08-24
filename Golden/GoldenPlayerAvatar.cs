@@ -46,6 +46,13 @@ namespace MacadamiaNuts.Golden
             AddMaterial();
         }
 
+        public void UpdateCorryptioner(GoldenNutValuable corryptioner)
+        {
+            if (GoldenNutValuable.Equals(corryptioner, _corryptioner)) return;
+
+            _corryptioner = corryptioner;
+        }
+
         public void IncreaseCorryption()
         {
             if (_isFullCorrupted)
@@ -73,7 +80,7 @@ namespace MacadamiaNuts.Golden
 
         private IEnumerator UpdateCorryptionCoroutine(float counter)
         {
-            foreach (Renderer renderer in _playerRenderers)
+            foreach (var renderer in _playerRenderers)
             {
                 var material = renderer.materials[^1];
                 var color = Color.white;
@@ -95,6 +102,7 @@ namespace MacadamiaNuts.Golden
 
                 var oldMaterial = renderer.materials[0];
                 renderer.materials[0] = material;
+                renderer.materials[^1] = oldMaterial;
 
                 while (currentCorryption >= progress)
                 {
@@ -102,9 +110,17 @@ namespace MacadamiaNuts.Golden
                     material.SetFloat(EDGE_STEP, currentCorryption);
                     yield return null;
                 }
-                yield return new WaitForSeconds(1f);
 
                 renderer.materials[0] = oldMaterial;
+            }
+
+            yield return new WaitForSeconds(1f);
+
+            foreach(var renderer in _playerRenderers)
+            {
+                var oldMaterial = renderer.materials[0];
+                renderer.materials[0] = renderer.materials[^1];
+                renderer.materials[^1] = oldMaterial;
             }
         }
 

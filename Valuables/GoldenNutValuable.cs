@@ -1,5 +1,6 @@
 ﻿using MacadamiaNuts.Golden;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
@@ -23,9 +24,7 @@ namespace MacadamiaNuts.Valuables
 
 #pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
 
-        private HashSet<PlayerAvatar> _corryptedPlayers = new();
-
-        private HashSet<PlayerAvatar> _players = new();
+        private NotifiableList<PlayerAvatar> _players = new();
 
         private bool _isGrabbed => _physGrabObject.playerGrabbing.Any();
         private bool _isShining => _shiningParticles.isPlaying;
@@ -36,6 +35,9 @@ namespace MacadamiaNuts.Valuables
         {
             _physGrabObject = GetComponent<PhysGrabObject>();
             OnPlayerDeath.AddListener(SummonMacadamiaNuts);
+
+            _players.OnItemAdded += StartCorrypt;
+            _players.OnItemAddedAgain += Corrypt;
         }
 
         private void OnDestroy()
@@ -53,8 +55,6 @@ namespace MacadamiaNuts.Valuables
                 }
                 else _shiningParticles.Stop();
 
-                UpdatePlayerList();
-
                 return;
             }
 
@@ -63,42 +63,7 @@ namespace MacadamiaNuts.Valuables
 
         public void RemoveCorryptedPlayer(PlayerAvatar avatar)
         {
-            if(_corryptedPlayers.Contains(avatar)) _corryptedPlayers.Remove(avatar);
-        }
-
-        private void UpdatePlayerList()
-        {
-            _players.Clear();
-
-            _players = _physGrabObject.playerGrabbing.Select(x => x.playerAvatar).ToHashSet();
-        }
-
-        private void Corrypt(List<PhysGrabber> players)
-        {
-            var newPlayers = System.Convert.ToUInt32(players.Count - 1 - _players.Count);
-            for (uint i = newPlayers; i < players.Count; i++)
-            {
-                var avatar = players[(int)i].playerAvatar;
-                var avatarVisual = players[(int)i].transform.parent.GetComponentInChildren<PlayerAvatarVisuals>();
-
-                var existGold = avatar.GetComponentInChildren<GoldenHead>();
-                if(existGold != null)
-                {
-                    existGold.IncreaseCorryption();
-                }
-                else
-                {
-                    if (_corryptedPlayers.Add(avatar))
-                    {
-                        var GO = Instantiate(_goldenPrefab, avatar.transform);
-
-                        GO.GetComponent<GoldenPlayerAvatar>().Initialize(avatar, avatarVisual, this);
-                        GO.GetComponent<GoldenHead>().Initialize(avatar, _corryptSound, _startCorryptSound);
-                    }
-                }
-            }
-
-            UpdatePlayerList();
+            if(_players.Contains(avatar)) _players.Remove(avatar);
         }
 
         private void TryCorrypt()
@@ -107,12 +72,36 @@ namespace MacadamiaNuts.Valuables
 
             if (players.Count <= _players.Count)
             {
-                UpdatePlayerList();
-
                 return;
             }
 
-            Corrypt(players);
+            foreach (var player in players)
+            {
+                _players.Add(player.playerAvatar);
+            }
+        }
+
+        private void Corrypt(PlayerAvatar avatar)
+        {
+            avatar.transform.parent.GetComponentInChildren<GoldenHead>().IncreaseCorryption();
+            avatar.GetComponent<GoldenPlayerAvatar>().UpdateCorryptioner(this);
+        }
+
+        private void StartCorrypt(PlayerAvatar avatar)
+        {
+            var goldenHead = avatar.transform.parent.GetComponentInChildren<GoldenHead>();
+
+            if(goldenHead != null)
+            {
+                Corrypt(avatar);
+                return;
+            }
+
+            var avatarVisual = avatar.transform.parent.GetComponentInChildren<PlayerAvatarVisuals>();
+
+            var GO = Instantiate(_goldenPrefab, avatar.transform);
+            GO.GetComponent<GoldenPlayerAvatar>().Initialize(avatar, avatarVisual, this);
+            GO.GetComponent<GoldenHead>().Initialize(avatar, _corryptSound, _startCorryptSound);
         }
 
         private void SummonMacadamiaNuts()
@@ -132,5 +121,24 @@ namespace MacadamiaNuts.Valuables
 
             Destroy(gameObject);
         }
+    }
+}
+
+
+public class NotifiableList<T> : List<T>
+{
+    public event System.Action<T> OnItemAdded;
+    public event System.Action<T> OnItemAddedAgain;
+
+    public new void Add(T item)
+    {
+        if(Contains(item))
+        {
+            OnItemAddedAgain?.Invoke(item);
+            return;
+        }
+
+        base.Add(item);
+        OnItemAdded?.Invoke(item);
     }
 }
