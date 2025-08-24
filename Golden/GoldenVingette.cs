@@ -10,12 +10,25 @@ namespace MacadamiaNuts.Golden
         private const float MIN_VALUE = .4f;
         private const float MAX_VALUE = .8f;
 
-        private Image _vingette;
+        [SerializeField] private Color _red;
+        [SerializeField] private float _vingetteMove = 10f;
+        private Color _baseColor;
+
+        private float _counter;
+        private float _max;
+        private bool _isUpdateVingette;
 
         private float _currentVignette;
 
+        private Vector3 _originalScale;
+        private IEnumerator _coroutine;
+
+#pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
+        private Image _vingette;
+
         private Material _materialPrefab;
         private Material _material;
+#pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
 
         private void Awake()
         {
@@ -24,6 +37,8 @@ namespace MacadamiaNuts.Golden
 
             _material = new(_materialPrefab);
             _vingette.material = _material;
+            _baseColor = _material.GetColor("_Color");
+            _originalScale = _vingette.transform.localScale;
 
             if (!_material.HasProperty(VINGETTE_KEY))
             {
@@ -35,6 +50,17 @@ namespace MacadamiaNuts.Golden
             _material.SetFloat(VINGETTE_KEY, MAX_VALUE);
 
             Hide();
+        }
+
+        private void Update()
+        {
+            //if (_isUpdateVingette)
+            //{
+            //    _vingette.transform.localScale = _originalScale;
+            //    return;
+            //}
+
+            //ShakeVingetteUpdate();
         }
 
         public void Show()
@@ -54,7 +80,22 @@ namespace MacadamiaNuts.Golden
 
         public void ShowCurrentVignette(float counter, float max)
         {
-            StartCoroutine(ShowCurrentVignetteCoroutine(counter, max));
+            _counter = counter;
+            _max = max;
+            if (_coroutine != null)
+            {
+                StopCoroutine(_coroutine);
+            }
+            _coroutine = ShowCurrentVignetteCoroutine(_counter, _max);
+
+            StartCoroutine(_coroutine);
+        }
+
+        private void ShakeVingetteUpdate()
+        {
+            var sin = Mathf.Sin(Time.time) / _vingetteMove;
+            var newCounter = _vingette.transform.localScale * sin;
+            _vingette.transform.localScale = newCounter;
         }
 
         private IEnumerator ShowCurrentVignetteCoroutine(float counter, float max)
@@ -66,10 +107,12 @@ namespace MacadamiaNuts.Golden
                 yield break;
             }
 
-            var step = (MAX_VALUE - MIN_VALUE) / max;
-            var newValue = step * counter;
-
+            _isUpdateVingette = true;
             _currentVignette = _material.GetFloat(VINGETTE_KEY);
+
+            var range = MAX_VALUE - MIN_VALUE;
+            var step = range / max;
+            var newValue = step * counter;
 
             while(_currentVignette > newValue)
             {
@@ -78,6 +121,13 @@ namespace MacadamiaNuts.Golden
                 _material.SetFloat(VINGETTE_KEY, _currentVignette);
                 yield return null;
             }
+
+            if (counter == 0){
+                _material.SetColor("_Color", _red);
+            }
+            else _material.SetColor("_Color", _baseColor);
+
+            _isUpdateVingette = false;
         }
     }
 }

@@ -4,29 +4,41 @@ namespace MacadamiaNuts.Golden
 {
     public class GoldenHead : MonoBehaviour
     {
-        [SerializeField] private Sound _corryptSound;
-        [SerializeField] private Sound _startCorryptSound;
+#pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
+        private Sound _corryptSound;
+        private Sound _startCorryptSound;
 
         private GoldenPlayerAvatar _goldenAvatar;
         private GoldenVingette _goldenVingette;
+        private PlayerAvatar _playerAvatar;
+#pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
 
-        public void Initialize()
+        private void Awake() 
         {
             _goldenAvatar = GetComponent<GoldenPlayerAvatar>();
             _goldenVingette = GetComponent<GoldenVingette>();
         }
 
+        public void Initialize(PlayerAvatar playerAvatar, Sound corryptSound, Sound startCorryptSound)
+        {
+            _playerAvatar = playerAvatar;
+            _corryptSound = corryptSound;
+            _startCorryptSound = startCorryptSound;
+            StartCorrypt();
+        }
+
         public void IncreaseCorryption()
         {
+            _corryptSound.Play(_playerAvatar.spectatePoint.position);
+
             _goldenAvatar.IncreaseCorryption();
             _goldenVingette.ShowCurrentVignette(_goldenAvatar.Counter, _goldenAvatar.MaxCorruption);
-            _corryptSound.Play(transform.position);
         }
 
         public void ShowVingette()
         {
             _goldenVingette.Show();
-            _goldenVingette.ShowCurrentVignette(.7f, _goldenAvatar.MaxCorruption);
+            _goldenVingette.ShowCurrentVignette(1f, _goldenAvatar.MaxCorruption);
         }
 
         public void HideVingette()
@@ -41,7 +53,7 @@ namespace MacadamiaNuts.Golden
 
         public void Revive()
         {
-            Destroy(this);
+            Destroy(gameObject);
         }
 
         public void Kill()
@@ -51,7 +63,7 @@ namespace MacadamiaNuts.Golden
 
         public void StartCorrypt()
         {
-            _startCorryptSound.Play(transform.position);
+            _startCorryptSound.Play(_playerAvatar.spectatePoint.position);
 
             ShowVingette();
 
@@ -59,8 +71,9 @@ namespace MacadamiaNuts.Golden
             {
                 var message = MacadamiaPhrasesDictionary.Instance.GetGoldenNutsCorryptionPhrase();
 
+                Color possessColor = Color.yellow;
                 ChatManager.instance.PossessChatScheduleStart(15);
-                ChatManager.instance.PossessChat(ChatManager.PossessChatID.None, message, typingSpeed: .1f, possessColor);
+                ChatManager.instance.PossessChat(ChatManager.PossessChatID.None, message, typingSpeed: 5f, possessColor);
                 ChatManager.instance.PossessChatScheduleEnd();
             }
         }

@@ -14,7 +14,7 @@ namespace MacadamiaNuts
         internal new static ManualLogSource Logger => Instance._logger;
         private ManualLogSource _logger => base.Logger;
         internal Harmony? Harmony { get; set; }
-        internal MacadamiaPhrasesDictionary MacadamiaPhrasesDictionary { get; private set; }
+        internal MacadamiaPhrasesDictionary? MacadamiaPhrasesDictionary { get; private set; }
 
         private void Awake()
         {

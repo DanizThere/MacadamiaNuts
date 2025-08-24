@@ -10,18 +10,20 @@ namespace MacadamiaNuts.States.CommonNuts
     {
         private Queue<GameObject> _layers = new();
 
-        private MacadamiaTimer _timer;
         private float _min = 0f;
         private float _max = 0f;
 
         private int _damage = 1;
 
+#pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
         private PhysGrabObject _grabObject;
         private PhotonView _photonView;
-        private bool _isHurting;
-
+        private MacadamiaTimer _timer;
         private Sound _semiEat;
         private ParticleSystem _particleSystem;
+#pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
+
+        private bool _isHurting;
 
         private bool _isFilled => _layers.Any();
 

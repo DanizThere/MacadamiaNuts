@@ -13,6 +13,7 @@ namespace MacadamiaNuts.Valuables
     {
         private const float MAX_ANGLE = 80f;
 
+#pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
         [SerializeField] private MacadamiaTimerData _activeTimerData;
         [SerializeField] private MacadamiaTimerData _idleTimerData;
 
@@ -23,9 +24,6 @@ namespace MacadamiaNuts.Valuables
         [SerializeField] private Sound _soundCrack;
         [SerializeField] private Sound _semiEat;
 
-        private Queue<GameObject> _nutsLayers = new();
-        private List<string> _objections = new();
-
         private ParticleSystem _particle;
 
         private PhysGrabObject _physGrabObject;
@@ -33,9 +31,12 @@ namespace MacadamiaNuts.Valuables
         private PhysGrabCart _cart;
 
         private MacadamiaStateMachine _stateMachine;
+#pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
+
+        private Queue<GameObject> _nutsLayers = new();
+        private List<string> _objections = new();
 
         private bool _isGrabbed => _physGrabObject.playerGrabbing.Any();
-
 
         private void Awake()
         {

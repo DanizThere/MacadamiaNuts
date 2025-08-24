@@ -15,19 +15,20 @@ namespace MacadamiaNuts.Golden
         private const float MAX_GOLD = 1f;
         private const float MIN_GOLD = 0f;
 
-        private float _counter = 5;
+        private float _counter = 0;
         private float _maxCorruption = 0;
-        private float _minCorruption = 0;
-        private bool _isFullCorrupted => _minCorruption == _counter;
+        private bool _isFullCorrupted => 0 == _counter;
 
+#pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
         private PlayerAvatar _playerAvatar;
         private PlayerAvatarVisuals _playerAvatarVisuals;
-
         private GoldenNutValuable _corryptioner;
 
         private MeshRenderer[] _playerRenderers;
 
         private Shader _goldenShader;
+#pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
+
 
         public void Initialize(PlayerAvatar player, PlayerAvatarVisuals rig, GoldenNutValuable corryptioner)
         {
@@ -38,8 +39,8 @@ namespace MacadamiaNuts.Golden
 
             _goldenShader = GetComponent<Renderer>().material.shader;
 
-            _counter = Random.Range(2, 7);
-            _maxCorruption = _counter;
+            _maxCorruption = Random.Range(2, 7);
+            _counter = _maxCorruption;
 
             _playerRenderers = rigModel.transform.GetComponentsInChildren<MeshRenderer>(includeInactive: true);
             AddMaterial();
@@ -61,11 +62,13 @@ namespace MacadamiaNuts.Golden
 
         public void Death()
         {
-            StartCoroutine(UpdateCorryptionCoroutine(0));
+            StartCoroutine(UpdateCorryptionCoroutine(1));
             _corryptioner.RemoveCorryptedPlayer(_playerAvatar);
 
             _playerAvatar.physGrabber.ReleaseObject();
             _playerAvatar.PlayerDeath(-1);
+
+            _corryptioner.OnPlayerDeath?.Invoke();
         }
 
         private IEnumerator UpdateCorryptionCoroutine(float counter)
@@ -73,6 +76,12 @@ namespace MacadamiaNuts.Golden
             foreach (Renderer renderer in _playerRenderers)
             {
                 var material = renderer.materials[^1];
+                var color = Color.white;
+                if (renderer.materials[0].HasProperty("_AlbedoColor"))
+                {
+                    color = renderer.materials[0].GetColor("_AlbedoColor");
+                }
+
                 var step = (MAX_GOLD - MIN_GOLD) / _maxCorruption;
                 var progress = counter * step;
 
@@ -82,6 +91,7 @@ namespace MacadamiaNuts.Golden
                 }
 
                 var currentCorryption = material.GetFloat(EDGE_STEP);
+                material.SetColor("_BaseColor", color);
 
                 var oldMaterial = renderer.materials[0];
                 renderer.materials[0] = material;
@@ -92,6 +102,7 @@ namespace MacadamiaNuts.Golden
                     material.SetFloat(EDGE_STEP, currentCorryption);
                     yield return null;
                 }
+                yield return new WaitForSeconds(1f);
 
                 renderer.materials[0] = oldMaterial;
             }

@@ -1,5 +1,4 @@
-﻿using Photon.Pun;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace MacadamiaNuts.Valuables
@@ -7,9 +6,11 @@ namespace MacadamiaNuts.Valuables
     public class BigNutValuable : MonoBehaviour
     {
         [SerializeField] private float _maxDistance = 2f;
+#pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
         [SerializeField] private Sound _meAndTheBirds;
 
         private PhysGrabObject _physGrabObject;
+#pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
 
         private bool _isPushing;
 

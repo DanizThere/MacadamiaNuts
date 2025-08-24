@@ -4,6 +4,7 @@ namespace MacadamiaNuts
 {
     public class MacadamiaPhrasesDictionary : MonoBehaviour
     {
+#pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
         public static MacadamiaPhrasesDictionary Instance;
 
         private string[] _macadamiaNutsEatPhrase;
@@ -11,6 +12,7 @@ namespace MacadamiaNuts
         private string[] _macadamiaNutsSwear;
         private string[] _swearEmoji;
         private string[] _dizzyEmoji;
+#pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
 
         public void Initialize()
         {
