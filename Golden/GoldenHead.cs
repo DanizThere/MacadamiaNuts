@@ -13,6 +13,8 @@ namespace MacadamiaNuts.Golden
         private PlayerAvatar _playerAvatar;
 #pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
 
+        private bool _playerIsGrabbing;
+
         private void Awake() 
         {
             _goldenAvatar = GetComponent<GoldenPlayerAvatar>();
@@ -29,10 +31,18 @@ namespace MacadamiaNuts.Golden
 
         public void IncreaseCorryption()
         {
+            if (_playerIsGrabbing) return;
+
             _corryptSound.Play(_playerAvatar.spectatePoint.position);
 
             _goldenAvatar.IncreaseCorryption();
             _goldenVingette.ShowCurrentVignette(_goldenAvatar.Counter, _goldenAvatar.MaxCorruption);
+            _playerIsGrabbing = true;
+        }
+
+        public void ResetGrabbing()
+        {
+            _playerIsGrabbing = false;
         }
 
         public void ShowVingette()

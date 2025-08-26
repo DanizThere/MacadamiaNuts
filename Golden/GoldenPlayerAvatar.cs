@@ -70,7 +70,6 @@ namespace MacadamiaNuts.Golden
         public void Death()
         {
             StartCoroutine(UpdateCorryptionCoroutine(1));
-            _corryptioner.RemoveCorryptedPlayer(_playerAvatar);
 
             _playerAvatar.physGrabber.ReleaseObject();
             _playerAvatar.PlayerDeath(-1);

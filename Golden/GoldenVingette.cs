@@ -16,11 +16,11 @@ namespace MacadamiaNuts.Golden
 
         private float _counter;
         private float _max;
+
         private bool _isUpdateVingette;
-
         private float _currentVignette;
+        private float _sinVignette = MAX_VALUE;
 
-        private Vector3 _originalScale;
         private IEnumerator _coroutine;
 
 #pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
@@ -35,10 +35,12 @@ namespace MacadamiaNuts.Golden
             _vingette = GetComponentInChildren<Image>();
             _materialPrefab = _vingette.material;
 
-            _material = new(_materialPrefab);
+            _material = new(_materialPrefab)
+            {
+                name = "personal vignette"
+            };
             _vingette.material = _material;
             _baseColor = _material.GetColor("_Color");
-            _originalScale = _vingette.transform.localScale;
 
             if (!_material.HasProperty(VINGETTE_KEY))
             {
@@ -54,13 +56,12 @@ namespace MacadamiaNuts.Golden
 
         private void Update()
         {
-            //if (_isUpdateVingette)
-            //{
-            //    _vingette.transform.localScale = _originalScale;
-            //    return;
-            //}
+            if (_isUpdateVingette)
+            {
+                return;
+            }
 
-            //ShakeVingetteUpdate();
+            ShakeVingetteUpdate();
         }
 
         public void Show()
@@ -93,9 +94,9 @@ namespace MacadamiaNuts.Golden
 
         private void ShakeVingetteUpdate()
         {
-            var sin = Mathf.Sin(Time.time) / _vingetteMove;
-            var newCounter = _vingette.transform.localScale * sin;
-            _vingette.transform.localScale = newCounter;
+            var sin = Mathf.Sin(Time.time * _sinVignette) / _vingetteMove;
+
+            _material.SetFloat(VINGETTE_KEY, sin);
         }
 
         private IEnumerator ShowCurrentVignetteCoroutine(float counter, float max)
@@ -107,8 +108,11 @@ namespace MacadamiaNuts.Golden
                 yield break;
             }
 
+            _material.SetFloat(VINGETTE_KEY, _sinVignette);
+
             _isUpdateVingette = true;
             _currentVignette = _material.GetFloat(VINGETTE_KEY);
+
 
             var range = MAX_VALUE - MIN_VALUE;
             var step = range / max;
@@ -121,6 +125,8 @@ namespace MacadamiaNuts.Golden
                 _material.SetFloat(VINGETTE_KEY, _currentVignette);
                 yield return null;
             }
+
+            _sinVignette = _currentVignette;
 
             if (counter == 0){
                 _material.SetColor("_Color", _red);
