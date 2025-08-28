@@ -1,5 +1,4 @@
 ﻿using MacadamiaNuts.Golden;
-using REPOLib.Modules;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
@@ -18,6 +17,9 @@ namespace MacadamiaNuts.Valuables
 
         [SerializeField] private Sound _corryptSound;
         [SerializeField] private Sound _startCorryptSound;
+
+        [SerializeField] private Sound _hitSound;
+        [SerializeField] private ParticleSystem _hitParticles;
 
         private PhysGrabObject _physGrabObject;
 
@@ -50,11 +52,10 @@ namespace MacadamiaNuts.Valuables
             }
         }
 
-        private void Corrypt(PlayerAvatar avatar)
+        public void OnHit()
         {
-            var goldenHead = avatar.transform.parent.GetComponentInChildren<GoldenHead>();
-            goldenHead.IncreaseCorryption();
-            goldenHead.GetComponent<GoldenPlayerAvatar>().UpdateCorryptioner(this);
+            _hitSound.Play(_physGrabObject.centerPoint);
+            _hitParticles.Play();
         }
 
         public void StartCorrypt(PlayerAvatar avatar)
@@ -74,6 +75,13 @@ namespace MacadamiaNuts.Valuables
             GO.GetComponent<GoldenHead>().Initialize(avatar, _corryptSound, _startCorryptSound);
         }
 
+        private void Corrypt(PlayerAvatar avatar)
+        {
+            var goldenHead = avatar.transform.parent.GetComponentInChildren<GoldenHead>();
+            goldenHead.IncreaseCorryption();
+            goldenHead.GetComponent<GoldenPlayerAvatar>().UpdateCorryptioner(this);
+        }
+
         private void SummonMacadamiaNuts()
         {
             var position = transform.position;
@@ -88,16 +96,23 @@ namespace MacadamiaNuts.Valuables
             }
             else
             {
-                GO = UnityEngine.Object.Instantiate(_macadamiaNuts, position, rotation);
+                GO = Instantiate(_macadamiaNuts, position, rotation);
             }
 
-            var physGrabObject = GO.GetComponent<PhysGrabObject>();
-
-            if (_physGrabObject.playerGrabbing.Any())
+            if(GO is null)
             {
-                foreach(var players in _physGrabObject.playerGrabbing)
+                MacadamiaNuts.Logger.LogMessage("This gameobjects wasnt instantiate. Destroying cancelled");
+                return;
+            }
+
+            if(GO.TryGetComponent<PhysGrabObject>(out var physGrabObject))
+            {
+                if (_physGrabObject.playerGrabbing.Any())
                 {
-                    players.OverrideGrab(physGrabObject);
+                    foreach (var players in _physGrabObject.playerGrabbing)
+                    {
+                        players.OverrideGrab(physGrabObject);
+                    }
                 }
             }
 

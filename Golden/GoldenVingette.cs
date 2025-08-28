@@ -11,15 +11,12 @@ namespace MacadamiaNuts.Golden
         private const float MAX_VALUE = .8f;
 
         [SerializeField] private Color _red;
-        [SerializeField] private float _vingetteMove = 10f;
         private Color _baseColor;
 
         private float _counter;
         private float _max;
 
-        private bool _isUpdateVingette;
         private float _currentVignette;
-        private float _sinVignette = MAX_VALUE;
 
         private IEnumerator _coroutine;
 
@@ -54,16 +51,6 @@ namespace MacadamiaNuts.Golden
             Hide();
         }
 
-        private void Update()
-        {
-            if (_isUpdateVingette)
-            {
-                return;
-            }
-
-            ShakeVingetteUpdate();
-        }
-
         public void Show()
         {
             _vingette.gameObject.SetActive(true);
@@ -92,13 +79,6 @@ namespace MacadamiaNuts.Golden
             StartCoroutine(_coroutine);
         }
 
-        private void ShakeVingetteUpdate()
-        {
-            var sin = Mathf.Sin(Time.time * _sinVignette) / _vingetteMove;
-
-            _material.SetFloat(VINGETTE_KEY, sin);
-        }
-
         private IEnumerator ShowCurrentVignetteCoroutine(float counter, float max)
         {
             if (!_material.HasProperty(VINGETTE_KEY))
@@ -107,10 +87,6 @@ namespace MacadamiaNuts.Golden
 
                 yield break;
             }
-
-            _material.SetFloat(VINGETTE_KEY, _sinVignette);
-
-            _isUpdateVingette = true;
             _currentVignette = _material.GetFloat(VINGETTE_KEY);
 
 
@@ -126,14 +102,10 @@ namespace MacadamiaNuts.Golden
                 yield return null;
             }
 
-            _sinVignette = _currentVignette;
-
             if (counter == 0){
                 _material.SetColor("_Color", _red);
             }
             else _material.SetColor("_Color", _baseColor);
-
-            _isUpdateVingette = false;
         }
     }
 }

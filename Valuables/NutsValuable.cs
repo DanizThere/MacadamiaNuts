@@ -78,13 +78,6 @@ namespace MacadamiaNuts.Valuables
             _particle.Play();
         }
 
-        private void InitializeObjections()
-        {
-            var objections = new string[] { " , fuk, ma macafamia nuff ar clumflinf" };
-
-            _objections.AddRange(objections);
-        }
-
         private IEnumerator TryGetCart()
         {
             int attempts = 5;

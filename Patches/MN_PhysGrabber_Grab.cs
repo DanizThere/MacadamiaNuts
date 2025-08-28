@@ -16,8 +16,6 @@ namespace MacadamiaNuts.Patches
 
             if(__instance.grabbedPhysGrabObject.TryGetComponent<GoldenNutValuable>(out var goldenNuts))
             {
-                Debug.Log("you have been corrypted");
-
                 var avatar = __instance.playerAvatar;
 
                 goldenNuts.StartCorrypt(avatar);

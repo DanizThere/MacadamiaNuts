@@ -8,6 +8,7 @@ namespace MacadamiaNuts.Golden
     {
         public float Counter => _counter;
         public float MaxCorruption => _maxCorruption;
+        public float CostValue => _costValue;
 
         private const string MAIN_TEXTURE = "_MainTex";
         private const string EDGE_STEP = "_GoldCorryption";
@@ -18,6 +19,8 @@ namespace MacadamiaNuts.Golden
         private float _counter = 0;
         private float _maxCorruption = 0;
         private bool _isFullCorrupted => 0 == _counter;
+
+        private float _costValue;
 
 #pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
         private PlayerAvatar _playerAvatar;
@@ -51,6 +54,7 @@ namespace MacadamiaNuts.Golden
             if (GoldenNutValuable.Equals(corryptioner, _corryptioner)) return;
 
             _corryptioner = corryptioner;
+            _costValue = corryptioner.GetComponent<ValuableObject>().dollarValueCurrent * Random.Range(.7f, 1.1f);
         }
 
         public void IncreaseCorryption()
@@ -69,12 +73,22 @@ namespace MacadamiaNuts.Golden
 
         public void Death()
         {
-            StartCoroutine(UpdateCorryptionCoroutine(1));
-
+            ResetCorryption();
             _playerAvatar.physGrabber.ReleaseObject();
             _playerAvatar.PlayerDeath(-1);
 
             _corryptioner.OnPlayerDeath?.Invoke();
+        }
+
+        private void ResetCorryption()
+        {
+            foreach (var renderer in _playerRenderers)
+            {
+                if (renderer.materials.Length == 1 || !renderer.material.HasProperty(EDGE_STEP)) continue;
+                var oldMaterial = renderer.materials[0];
+                renderer.materials[0] = renderer.materials[^1];
+                renderer.materials[^1] = oldMaterial;
+            }
         }
 
         private IEnumerator UpdateCorryptionCoroutine(float counter)
@@ -100,6 +114,8 @@ namespace MacadamiaNuts.Golden
                 material.SetColor("_BaseColor", color);
 
                 var oldMaterial = renderer.materials[0];
+                print(oldMaterial);
+                print(material);
                 renderer.materials[0] = material;
                 renderer.materials[^1] = oldMaterial;
 

@@ -4,6 +4,8 @@ namespace MacadamiaNuts.Golden
 {
     public class GoldenHead : MonoBehaviour
     {
+        public float PlayerCost => _playerCost;
+
 #pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
         private Sound _corryptSound;
         private Sound _startCorryptSound;
@@ -14,6 +16,8 @@ namespace MacadamiaNuts.Golden
 #pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
 
         private bool _playerIsGrabbing;
+        private float _playerCost;
+
 
         private void Awake() 
         {
@@ -68,6 +72,7 @@ namespace MacadamiaNuts.Golden
 
         public void Kill()
         {
+            _playerCost = _goldenAvatar.CostValue;
             ResetVingette();
         }
 
