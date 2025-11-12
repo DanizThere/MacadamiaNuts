@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Photon.Pun;
+using System.Linq;
 using UnityEngine;
 
 namespace MacadamiaNuts.Valuables
@@ -10,6 +11,7 @@ namespace MacadamiaNuts.Valuables
         [SerializeField] private Sound _meAndTheBirds;
 
         private PhysGrabObject _physGrabObject;
+        private PhotonView _photon;
 #pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
 
         private bool _isPushing;
@@ -17,6 +19,7 @@ namespace MacadamiaNuts.Valuables
         private void Awake()
         {
             _physGrabObject = GetComponent<PhysGrabObject>();
+            _photon = GetComponent<PhotonView>();
         }
 
 
@@ -26,7 +29,7 @@ namespace MacadamiaNuts.Valuables
             {
                 foreach(var players in _physGrabObject.playerGrabbing.ToList())
                 {
-                    players.ReleaseObject();
+                    players.ReleaseObject(_photon.ViewID);
                 }
             }
 

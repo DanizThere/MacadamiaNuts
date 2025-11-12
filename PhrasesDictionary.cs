@@ -45,27 +45,27 @@ namespace MacadamiaNuts
 
         private void InitializeEatPhrases()
         {
-            _macadamiaNutsEatPhrase = new string[] { };
+            _macadamiaNutsEatPhrase = new string[] { "Fis favse is wonderful, I donv wans vo sfov", "fif if my Nufs", "Hov felivious", "Fainf Semifas, forry vuf fis Nufs are so goov" };
         }
 
         private void InitializeCorryptionPhrases()
         {
-            _goldenNutsStartCorryption = new string[] { "Oh, this is a very creepy feeling" };
+            _goldenNutsStartCorryption = new string[] { "Oh, this is a very creepy feeling", "Saint Semidas, bless my soul", "No, just not this", "Well, I dont have much time left" };
         }
 
         private void InitializeSwearWords()
         {
-            _macadamiaNutsSwear = new string[] { };
+            _macadamiaNutsSwear = new string[] { "Holy Nut", "Youre a son of a rotten Nut", "this Nut is not so easy", "Go Nuts", "Im gonna Nut myself", "Saint Semidas will punish you" };
         }
 
         private void InitializeSwearEmoji()
         {
-            _swearEmoji = new string[] { };
+            _swearEmoji = new string[] { ">:O", ":-@", ">:(" };
         }
 
         private void InitializeDizzyEmoji()
         {
-            _dizzyEmoji = new string[] { ">//<" };
+            _dizzyEmoji = new string[] { ">//<", "O_o", ">_<", ":-&", ":-<", ":С" };
         }
     }
 }

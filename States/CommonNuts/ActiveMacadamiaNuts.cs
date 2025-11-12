@@ -90,6 +90,18 @@ namespace MacadamiaNuts.States.CommonNuts
                     _damage = Random.Range(1, 3);
 
                 Emit(15, player.playerAvatar.spectatePoint);
+
+                var rand = Random.Range(0, 3);
+                if (SemiFunc.IsMultiplayer() && rand == 2 && player.grabbedPhysGrabObject == _grabObject)
+                {
+                    var message = MacadamiaPhrasesDictionary.Instance.GetMacadamiaNutsEatPhrase();
+
+                    //brown
+                    Color possessColor = new(0.6470588f, 0.1647059f, 0.1647059f, 1f);
+                    ChatManager.instance.PossessChatScheduleStart(15);
+                    ChatManager.instance.PossessChat(ChatManager.PossessChatID.None, message, typingSpeed: 10f, possessColor);
+                    ChatManager.instance.PossessChatScheduleEnd();
+                }
             }
 
             _isHurting = false;
@@ -106,12 +118,13 @@ namespace MacadamiaNuts.States.CommonNuts
         private void Emit(Transform basePoint)
         {
             var newPosition = basePoint.position + basePoint.forward * .3f;
-            newPosition += new Vector3(Random.Range(-.1f, .1f), Random.Range(-.05f, .1f), 0);
+
+            var randomPosition = Vector3.Slerp(basePoint.forward, Random.onUnitSphere, Random.Range(-30f, 30f));
 
             var emitParams = new ParticleSystem.EmitParams
             {
                 position = newPosition,
-                velocity = Vector3.up * .2f
+                velocity = randomPosition * Random.Range(1, 1.5f)
             };
 
             _particleSystem.Emit(emitParams, 1);
